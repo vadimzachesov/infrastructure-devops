@@ -1,0 +1,56 @@
+- name: Install prerequisite packages for APT over HTTPS
+  apt:
+    pkg:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: true
+
+- name: Create keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Docker official GPG key
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+    force: false
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+
+- name: Install Docker CE, CLI and Compose plugin
+  apt:
+    pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+    update_cache: true
+
+- name: Add deployer user to docker group
+  user:
+    name: "{{ deployer_user | default('deployer') }}"
+    groups: "docker"
+    append: true
+
+- name: Ensure Docker service is enabled and running
+  systemd:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Ensure Containerd service is enabled and running
+  systemd:
+    name: containerd
+    state: started
+    enabled: true
