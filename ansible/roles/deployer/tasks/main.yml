@@ -1,11 +1,4 @@
 ---
-- name: Check if port 80 is available
-  wait_for:
-    port: 80
-    state: stopped
-    timeout: 2
-    msg: "Освободите порт 80 перед использованием!"
-
 - name: Ensure deployer group exists
   group:
     name: "{{ deployer_user }}"
