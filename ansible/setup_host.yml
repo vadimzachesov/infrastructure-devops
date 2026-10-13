@@ -1,0 +1,8 @@
+---
+- name: Setup base host environment and Docker
+  hosts: servers
+  become: true
+
+  roles:
+    - role: deployer
+    - role: docker
